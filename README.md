@@ -1,75 +1,101 @@
-🍔 Sistema de Gerenciamento de Pedidos
-👥 Equipe Maranhão
+# 🍔 Sistema de Gerenciamento de Pedidos
 
-Membro 1: Daniel Teixeira
-Membro 2: Antonio Coqueiro
-Membro 3: Mendel Kalyl 
-Membro 4: Vitor Sena 
-Membro 5: Augusto Santos
-📖 Descrição
-Este projeto é um sistema de gerenciamento de pedidos desenvolvido em Python.
-O objetivo é simular o funcionamento básico de um restaurante utilizando estruturas de dados nativas para representar filas de pedidos e operações de gerenciamento de itens e pedidos.
+## 👥 Equipe
+- Membro 1: Daniel Teixeira
+- Membro 2: Antonio Coqueiro
+- Membro 3: Mendel Kalyl 
+- Membro 4: Vitor Sena
+- Membro 5: Augusto Santos
 
-O sistema é operado por meio de um menu interativo em linha de comando, oferecendo funcionalidades para manipulação do menu de itens e do fluxo de pedidos.
+---
 
-⚙️ Estrutura e Funcionalidades
-🔹 Gerenciar Menu de Itens
-Cadastrar Item: Adiciona um novo produto ao menu.
-Atualizar Item: Modifica informações de um item existente (nome, descrição, preço, quantidade em estoque).
-Consultar Itens: Exibe todos os itens disponíveis.
+## 📖 Descrição
+Este projeto é um **sistema de gerenciamento de pedidos** desenvolvido em Python.  
+O objetivo é simular o funcionamento básico de um restaurante utilizando **estruturas de dados nativas** para representar filas de pedidos e operações de gerenciamento de itens e pedidos.
+
+O sistema é operado por meio de um **menu interativo em linha de comando**, oferecendo funcionalidades para manipulação do **menu de itens** e do **fluxo de pedidos**.
+
+---
+
+## ⚙️ Estrutura e Funcionalidades
+
+### 🔹 Gerenciar Menu de Itens
+- **Cadastrar Item**: Adiciona um novo produto ao menu.  
+- **Atualizar Item**: Modifica informações de um item existente (nome, descrição, preço, quantidade em estoque).  
+- **Consultar Itens**: Exibe todos os itens disponíveis.  
+
 Cada item é armazenado com as seguintes informações:
+- `código`: Identificador único (gerado automaticamente).
+- `nome`: Nome do produto.
+- `descrição`: Detalhes sobre o item.
+- `preço`: Valor monetário.
+- `estoque`: Quantidade em estoque.
 
-código: Identificador único (gerado automaticamente).
-nome: Nome do produto.
-descrição: Detalhes sobre o item.
-preço: Valor monetário.
-estoque: Quantidade em estoque.
-🔹 Gerenciar Menu de Pedidos
-Criar Pedido:
+---
 
-Deve conter no mínimo um item.
-Pode ter um cupom de desconto aplicado.
-Ao ser criado, o pedido é considerado pago e recebe o status inicial AGUARDANDO APROVACAO.
-Processar Pedidos Pendentes:
+### 🔹 Gerenciar Menu de Pedidos
+- **Criar Pedido**:  
+  - Deve conter no mínimo **um item**.  
+  - Pode ter um **cupom de desconto** aplicado.  
+  - Ao ser criado, o pedido é considerado **pago** e recebe o status inicial `AGUARDANDO APROVACAO`.  
 
-Permite aceitar ou rejeitar pedidos na ordem em que foram criados.
-Atualizar Status de Pedido:
+- **Processar Pedidos Pendentes**:  
+  - Permite **aceitar ou rejeitar** pedidos na ordem em que foram criados.  
 
-Altera o status de um pedido existente de acordo com o fluxo definido.
-Cancelar Pedido:
+- **Atualizar Status de Pedido**:  
+  - Altera o status de um pedido existente de acordo com o fluxo definido.  
 
-Só é possível se o status for AGUARDANDO APROVACAO ou ACEITO.
-🔹 Fluxo de Pedidos e Filas
-O sistema usa filas (FIFO) para gerenciar os pedidos:
+- **Cancelar Pedido**:  
+  - Só é possível se o status for `AGUARDANDO APROVACAO` ou `ACEITO`.
 
-Fila de Pedidos Pendentes
+---
 
-Todos os novos pedidos são adicionados aqui.
-Processados na ordem de chegada.
-Fila de Pedidos Aceitos
+### 🔹 Fluxo de Pedidos e Filas
+O sistema usa **filas (FIFO)** para gerenciar os pedidos:
 
-Pedidos aceitos são movidos para cá com status FAZENDO.
-Fila de Pedidos Prontos
+1. **Fila de Pedidos Pendentes**  
+   - Todos os novos pedidos são adicionados aqui.  
+   - Processados na ordem de chegada.  
 
-Após o preparo, recebem status FEITO e ficam aguardando entregador (ESPERANDO ENTREGADOR).
-🔹 Fluxo de Status do Pedido
+2. **Fila de Pedidos Aceitos**  
+   - Pedidos aceitos são movidos para cá com status `FAZENDO`.  
+
+3. **Fila de Pedidos Prontos**  
+   - Após o preparo, recebem status `FEITO` e ficam aguardando entregador (`ESPERANDO ENTREGADOR`).  
+
+---
+
+### 🔹 Fluxo de Status do Pedido
 Os pedidos podem assumir os seguintes status:
 
-AGUARDANDO APROVACAO
-ACEITO
-FAZENDO
-FEITO
-ESPERANDO ENTREGADOR
-SAIU PARA ENTREGA
-ENTREGUE
-CANCELADO
-REJEITADO
-🔹 Consultas
-O sistema permite:
+- `AGUARDANDO APROVACAO`
+- `ACEITO`
+- `FAZENDO`
+- `FEITO`
+- `ESPERANDO ENTREGADOR`
+- `SAIU PARA ENTREGA`
+- `ENTREGUE`
+- `CANCELADO`
+- `REJEITADO`
 
-Exibir todos os pedidos.
-Filtrar pedidos por status.
-🛠️ Tecnologias Utilizadas
-Python 3.x
-Estruturas de dados nativas (list, queue)
-Menu interativo no terminal
+---
+
+### 🔹 Consultas
+O sistema permite:
+- Exibir **todos os pedidos**.  
+- Filtrar pedidos por **status**.  
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+- **Python 3.x**  
+- Estruturas de dados nativas (`list`, `queue`)  
+- Menu interativo no terminal  
+
+---
+
+## ▶️ Como Executar
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/usuario/repositorio.git
+   cd repositorio
