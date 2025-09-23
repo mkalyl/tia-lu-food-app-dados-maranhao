@@ -3,6 +3,9 @@
 
 itens = []
 pedidos = []
+fila_pendentes = []
+fila_aceitos = []
+fila_prontos = []
 
 proximo_id_item = 1
 proximo_id_pedido = 1
@@ -22,14 +25,15 @@ class Pedido:
         self.valor_total = valor_total
         self.status = status
 
+
 def cadastrar_item():
     global proximo_id_item
     print("\n--- Cadastrar Novo Item ---")
     nome = input("Nome do item: ")
     descricao = input("Descrição: ")
-    preco = float(input("Preço: R$ "))
+    preço = float(input("Preço: R$ "))
     estoque = int(input("Estoque inicial: "))
-    novo_item = Item(proximo_id_item, nome, descricao, preco, estoque)
+    novo_item = Item(proximo_id_item, nome, descricao, preço, estoque)
     itens.append(novo_item)
     proximo_id_item += 1
     print(f"Item '{nome}' cadastrado com sucesso! Código: {novo_item.codigo}")
@@ -40,7 +44,7 @@ def consultar_itens():
         print("Nenhum item cadastrado.")
         return
     for item in itens:
-        print(f"Código: {item.codigo} | Nome: {item.nome} | Preço: R$ {item.preco:.2f} | Estoque: {item.estoque}")
+        print(f"Código: {item.codigo} | Nome: {item.nome} | Preço: R$ {item.preço:.2f} | Estoque: {item.estoque}")
 
 def atualizar_item():
     print("\n--- Atualizar Item ---")
@@ -58,7 +62,7 @@ def atualizar_item():
             print(f"\nEditando item: {item_encontrado.nome}")
             item_encontrado.nome = input(f"Novo nome ({item_encontrado.nome}): ") or item_encontrado.nome
             item_encontrado.descricao = input(f"Nova descrição ({item_encontrado.descricao}): ") or item_encontrado.descricao
-            item_encontrado.preco = float(input(f"Novo preço ({item_encontrado.preco}): ") or item_encontrado.preco)
+            item_encontrado.preço = float(input(f"Novo preço ({item_encontrado.preço}): ") or item_encontrado.preço)
             item_encontrado.estoque = int(input(f"Novo estoque ({item_encontrado.estoque}): ") or item_encontrado.estoque)
             print("Item atualizado com sucesso!")
         else:
@@ -88,7 +92,7 @@ def criar_pedido():
                     break
             if item_encontrado and item_encontrado.estoque >= quantidade:
                 itens_pedido.append((item_encontrado, quantidade))
-                valor_total += item_encontrado.preco * quantidade
+                valor_total += item_encontrado.preço * quantidade
                 print(f"Item '{item_encontrado.nome}' adicionado ao pedido!")
             else:
                 print("Item não encontrado ou estoque insuficiente!")
@@ -97,11 +101,33 @@ def criar_pedido():
     if not itens_pedido:
         print("Pedido vazio! Cancelando operação.")
         return
-    novo_pedido = Pedido(proximo_id_pedido, itens_pedido, valor_total, "NOVO")
+    novo_pedido = Pedido(proximo_id_pedido, itens_pedido, valor_total, "AGUARDANDO APROVACAO")
     pedidos.append(novo_pedido)
+    fila_pendentes.append(novo_pedido)
     proximo_id_pedido += 1
     print(f"\nPedido #{novo_pedido.numero} criado com sucesso!")
     print(f"Valor total: R$ {valor_total:.2f}")
+
+def processar_pedidos_pendentes():
+    print("\n--- Processar Pedidos Pendentes ---")
+    if not fila_pendentes:
+        print("Nenhum pedido pendente!")
+        return
+    pedido = fila_pendentes[0]
+    print(f"\nPedido #{pedido.numero}")
+    print("Itens do pedido:")
+    for item, quantidade in pedido.itens:
+        print(f"- {item.nome} x{quantidade}")
+    print(f"Valor total: R$ {pedido.valor_total:.2f}")
+    acao = input("\nAceitar pedido? (S/N): ").upper()
+    if acao == "S":
+        pedido.status = "ACEITO"
+        fila_aceitos.append(pedido)
+        print("Pedido aceito e movido para preparo!")
+    else:
+        pedido.status = "REJEITADO"
+        print("Pedido rejeitado!")
+    fila_pendentes.pop(0)
 
 def exibir_todos_pedidos():
     print("\n--- Todos os Pedidos ---")
@@ -114,11 +140,8 @@ def exibir_todos_pedidos():
 def menu_principal():
     while True:
         print("\n--- SISTEMA DE PEDIDOS ---")
-        print("1. Cadastrar Item")
-        print("2. Atualizar Item")
-        print("3. Consultar Itens")
-        print("4. Criar Pedido")
-        print("5. Exibir Todos os Pedidos")
+        print("1. Gerenciar Itens")
+        print("2. Gerenciar Pedidos")
         print("0. Sair")
         try:
             opcao = int(input("\nEscolha uma opção: "))
@@ -126,14 +149,52 @@ def menu_principal():
                 print("Saindo do sistema...")
                 break
             elif opcao == 1:
+                menu_itens()
+            elif opcao == 2:
+                menu_pedidos()
+            else:
+                print("Opção inválida!")
+        except ValueError:
+            print("Por favor, digite um número válido!")
+
+def menu_itens():
+    while True:
+        print("\n--- Gerenciar Itens ---")
+        print("1. Cadastrar Item")
+        print("2. Atualizar Item")
+        print("3. Consultar Itens")
+        print("0. Voltar")
+        try:
+            opcao = int(input("\nEscolha uma opção: "))
+            if opcao == 0:
+                break
+            elif opcao == 1:
                 cadastrar_item()
             elif opcao == 2:
                 atualizar_item()
             elif opcao == 3:
                 consultar_itens()
-            elif opcao == 4:
+            else:
+                print("Opção inválida!")
+        except ValueError:
+            print("Por favor, digite um número válido!")
+
+def menu_pedidos():
+    while True:
+        print("\n--- Gerenciar Pedidos ---")
+        print("1. Criar Pedido")
+        print("2. Processar Pedidos Pendentes")
+        print("3. Exibir Todos os Pedidos")
+        print("0. Voltar")
+        try:
+            opcao = int(input("\nEscolha uma opção: "))
+            if opcao == 0:
+                break
+            elif opcao == 1:
                 criar_pedido()
-            elif opcao == 5:
+            elif opcao == 2:
+                processar_pedidos_pendentes()
+            elif opcao == 3:
                 exibir_todos_pedidos()
             else:
                 print("Opção inválida!")
@@ -142,3 +203,4 @@ def menu_principal():
 
 if __name__ == "__main__":
     menu_principal()
+
