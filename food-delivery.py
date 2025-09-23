@@ -8,19 +8,20 @@ proximo_id_item = 1
 proximo_id_pedido = 1
 
 class Item:
-    def _init_(self, codigo, nome, descricao, preço, estoque):
+    def __init__(self, codigo, nome, descricao, preco, estoque):  
         self.codigo = codigo
         self.nome = nome
         self.descricao = descricao
-        self.preço = preço
+        self.preco = preco
         self.estoque = estoque
 
 class Pedido:
-    def _init_(self, numero, itens, valor_total, status):
+    def __init__(self, numero, itens, valor_total, status):  
         self.numero = numero
         self.itens = itens
         self.valor_total = valor_total
         self.status = status
+
 
 def cadastrar_item():
     global proximo_id_item
