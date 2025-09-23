@@ -79,12 +79,21 @@ def criar_pedido():
     print(f"\nPedido #{novo_pedido.numero} criado com sucesso!")
     print(f"Valor total: R$ {valor_total:.2f}")
 
+def exibir_todos_pedidos():
+    print("\n--- Todos os Pedidos ---")
+    if not pedidos:
+        print("Nenhum pedido cadastrado!")
+        return
+    for pedido in pedidos:
+        print(f"Pedido #{pedido.numero} | Status: {pedido.status} | Valor: R$ {pedido.valor_total:.2f}")
+
 def menu_principal():
     while True:
         print("\n--- SISTEMA DE PEDIDOS ---")
         print("1. Cadastrar Item")
         print("2. Consultar Itens")
         print("3. Criar Pedido")
+        print("4. Exibir Todos os Pedidos")
         print("0. Sair")
         try:
             opcao = int(input("\nEscolha uma opção: "))
@@ -97,10 +106,12 @@ def menu_principal():
                 consultar_itens()
             elif opcao == 3:
                 criar_pedido()
+            elif opcao == 4:
+                exibir_todos_pedidos()
             else:
                 print("Opção inválida!")
         except ValueError:
             print("Por favor, digite um número válido!")
-            
+
 if __name__ == "__main__":
     menu_principal()
