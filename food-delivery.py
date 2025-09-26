@@ -1,4 +1,4 @@
-# Sistema de Pedidos para Restaurante - FoodDelivery 6.0
+# Sistema de Pedidos para Restaurante - FoodDelivery 7.0
 # Desenvolvido por Maranhão - UNEX
 
 itens = []
@@ -23,8 +23,8 @@ class Pedido:
         self.itens = itens
         self.valor_total = valor_total
         self.status = "AGUARDANDO APROVACAO"
-        self.cupom_desconto = None  
-        self.valor_original = valor_total  
+        self.cupom_desconto = None
+        self.valor_original = valor_total
 
 def cadastrar_item():
     global proximo_id_item
@@ -75,11 +75,10 @@ def atualizar_item():
     except ValueError:
         print("Código inválido!")
 
-
 def aplicar_desconto(valor_total, cupom):
     """Aplica desconto baseado no cupom informado"""
     cupons_validos = {
-        "OFF5": 0.05,    
+        "OFF5": 0.05,
         "OFF10": 0.10,
         "OFF15": 0.15
     }
@@ -134,14 +133,13 @@ def criar_pedido():
         print("Pedido vazio! Cancelando operação.")
         return
     
-    
     cupom = input("\n🎫 Cupom de desconto (digite OFF5, OFF10, OFF15 ou Enter para pular): ").strip().upper()
     valor_final = valor_total
     cupom_aplicado = None
     
     if cupom:
         valor_final = aplicar_desconto(valor_total, cupom)
-        if valor_final != valor_total: 
+        if valor_final != valor_total:
             cupom_aplicado = cupom
     
     novo_pedido = Pedido(proximo_id_pedido, itens_pedido, valor_final)
@@ -159,6 +157,87 @@ def criar_pedido():
         print(f"💰 Economia: R$ {(valor_total - valor_final):.2f}")
     print(f"📊 Status: {novo_pedido.status}")
 
+# NOVO: Função completa de cancelamento de pedidos
+def cancelar_pedido():
+    print("\n--- Cancelar Pedido ---")
+    
+    if not pedidos:
+        print("Nenhum pedido cadastrado!")
+        return
+    
+    # Mostra apenas pedidos que podem ser cancelados
+    pedidos_cancelaveis = [p for p in pedidos if p.status in ["AGUARDANDO APROVACAO", "EM PREPARACAO"]]
+    
+    if not pedidos_cancelaveis:
+        print("Nenhum pedido disponível para cancelamento.")
+        print("Apenas pedidos com status 'AGUARDANDO APROVACAO' ou 'EM PREPARACAO' podem ser cancelados.")
+        return
+    
+    print("\n📋 Pedidos disponíveis para cancelamento:")
+    for pedido in pedidos_cancelaveis:
+        cupom_info = f" [Cupom: {pedido.cupom_desconto}]" if pedido.cupom_desconto else ""
+        print(f"#{pedido.numero} - Status: {pedido.status} - Valor: R$ {pedido.valor_total:.2f}{cupom_info}")
+    
+    try:
+        numero = int(input("\nNúmero do pedido a cancelar: "))
+        
+        pedido_encontrado = None
+        for pedido in pedidos:
+            if pedido.numero == numero:
+                pedido_encontrado = pedido
+                break
+        
+        if not pedido_encontrado:
+            print("❌ Pedido não encontrado!")
+            return
+        
+        # Verifica se o pedido pode ser cancelado
+        if pedido_encontrado.status not in ["AGUARDANDO APROVACAO", "EM PREPARACAO"]:
+            print(f"❌ Este pedido não pode ser cancelado.")
+            print(f"   Status atual: {pedido_encontrado.status}")
+            print("   Apenas pedidos 'AGUARDANDO APROVACAO' ou 'EM PREPARACAO' podem ser cancelados.")
+            return
+        
+        print(f"\n📄 Detalhes do Pedido #{pedido_encontrado.numero}:")
+        print(f"   Status: {pedido_encontrado.status}")
+        print(f"   Valor: R$ {pedido_encontrado.valor_total:.2f}")
+        if pedido_encontrado.cupom_desconto:
+            print(f"   Cupom aplicado: {pedido_encontrado.cupom_desconto}")
+        
+        print("\nItens do pedido:")
+        for item, quantidade in pedido_encontrado.itens:
+            print(f"   - {item.nome} x{quantidade}")
+        
+        # Confirmação de cancelamento
+        confirmacao = input("\n🚨 TEM CERTEZA que deseja cancelar este pedido? (S/N): ").upper()
+        
+        if confirmacao == "S":
+            # Remove o pedido das filas
+            if pedido_encontrado in fila_pendentes:
+                fila_pendentes.remove(pedido_encontrado)
+            if pedido_encontrado in fila_preparo:
+                fila_preparo.remove(pedido_encontrado)
+            if pedido_encontrado in fila_prontos:
+                fila_prontos.remove(pedido_encontrado)
+            
+            # Atualiza status para cancelado
+            pedido_encontrado.status = "CANCELADO"
+            
+            print(f"✅ Pedido #{pedido_encontrado.numero} cancelado com sucesso!")
+            
+            # Mostra resumo do cancelamento
+            if pedido_encontrado.cupom_desconto:
+                economia = pedido_encontrado.valor_original - pedido_encontrado.valor_total
+                print(f"💸 Valor reembolsado: R$ {pedido_encontrado.valor_total:.2f}")
+                print(f"🎫 Cupom {pedido_encontrado.cupom_desconto} foi invalidado")
+            else:
+                print(f"💸 Valor reembolsado: R$ {pedido_encontrado.valor_total:.2f}")
+        else:
+            print("❌ Cancelamento não realizado. O pedido permanece ativo.")
+            
+    except ValueError:
+        print("❌ Número de pedido inválido!")
+
 def consultar_pedidos():
     print("\n--- Todos os Pedidos ---")
     
@@ -167,14 +246,21 @@ def consultar_pedidos():
         return
     
     for pedido in pedidos:
+        status_icon = "✅" if pedido.status == "ENTREGUE" else "❌" if pedido.status == "CANCELADO" else "⏳"
         cupom_info = f" | Cupom: {pedido.cupom_desconto}" if pedido.cupom_desconto else ""
-        print(f"Pedido #{pedido.numero} | Valor: R$ {pedido.valor_total:.2f} | Status: {pedido.status}{cupom_info}")
+        print(f"{status_icon} Pedido #{pedido.numero} | Valor: R$ {pedido.valor_total:.2f} | Status: {pedido.status}{cupom_info}")
 
 def visualizar_filas():
     print("\n--- Situação das Filas ---")
-    print(f"Pendentes (Aguardando aprovação): {len(fila_pendentes)} pedidos")
-    print(f"Em preparo: {len(fila_preparo)} pedidos")
-    print(f"Prontos: {len(fila_prontos)} pedidos")
+    print(f"📋 Pendentes: {len(fila_pendentes)} pedido(s)")
+    print(f"👨‍🍳 Em preparo: {len(fila_preparo)} pedido(s)")
+    print(f"✅ Prontos: {len(fila_prontos)} pedido(s)")
+    
+    # Conta pedidos cancelados e entregues
+    cancelados = len([p for p in pedidos if p.status == "CANCELADO"])
+    entregues = len([p for p in pedidos if p.status == "ENTREGUE"])
+    print(f"❌ Cancelados: {cancelados} pedido(s)")
+    print(f"📦 Entregues: {entregues} pedido(s)")
     
     if fila_pendentes:
         print("\n📋 Pedidos Pendentes:")
@@ -194,12 +280,12 @@ def visualizar_filas():
             cupom_info = f" [Cupom: {pedido.cupom_desconto}]" if pedido.cupom_desconto else ""
             print(f"  #{pedido.numero} - R$ {pedido.valor_total:.2f}{cupom_info}")
 
-
 def detalhes_pedido_com_desconto(numero_pedido):
     """Mostra detalhes do pedido incluindo informações de desconto"""
     for pedido in pedidos:
         if pedido.numero == numero_pedido:
-            print(f"\n📄 Detalhes do Pedido #{pedido.numero}")
+            status_icon = "✅" if pedido.status == "ENTREGUE" else "❌" if pedido.status == "CANCELADO" else "⏳"
+            print(f"\n{status_icon} Detalhes do Pedido #{pedido.numero}")
             print(f"📊 Status: {pedido.status}")
             print("\n🛒 Itens do pedido:")
             for item, quantidade in pedido.itens:
@@ -311,13 +397,18 @@ def atualizar_status_pedido():
                         fila_prontos.append(pedido)
                 elif opcao == 4:
                     pedido.status = "ENTREGUE"
+                    # Remove de todas as filas quando é entregue
+                    if pedido in fila_prontos:
+                        fila_prontos.remove(pedido)
                 elif opcao == 5:
-                    pedido.status = "CANCELADO"
+                    # NOVO: Usa a função de cancelamento para consistência
+                    print("\n🔔 Use a opção 'Cancelar Pedido' para cancelamentos!")
+                    return
                 else:
                     print("Opção inválida!")
                     return
                 
-                
+                # Remove das filas antigas
                 if status_anterior == "AGUARDANDO APROVACAO" and pedido in fila_pendentes:
                     fila_pendentes.remove(pedido)
                 elif status_anterior == "EM PREPARACAO" and pedido in fila_preparo:
@@ -325,7 +416,7 @@ def atualizar_status_pedido():
                 elif status_anterior == "PRONTO" and pedido in fila_prontos:
                     fila_prontos.remove(pedido)
                 
-                print("Status atualizado com sucesso!")
+                print("✅ Status atualizado com sucesso!")
                 return
         
         print("Pedido não encontrado!")
@@ -346,13 +437,13 @@ def filtrar_pedidos_por_status():
     
     for pedido in pedidos:
         if pedido.status == status:
+            status_icon = "✅" if status == "ENTREGUE" else "❌" if status == "CANCELADO" else "⏳"
             cupom_info = f" | Cupom: {pedido.cupom_desconto}" if pedido.cupom_desconto else ""
-            print(f"Pedido #{pedido.numero} | Valor: R$ {pedido.valor_total:.2f} | Status: {pedido.status}{cupom_info}")
+            print(f"{status_icon} Pedido #{pedido.numero} | Valor: R$ {pedido.valor_total:.2f} | Status: {pedido.status}{cupom_info}")
             encontrados = True
     
     if not encontrados:
         print(f"Nenhum pedido encontrado com status: {status}")
-
 
 def consultar_pedidos_com_desconto():
     print("\n--- Pedidos com Cupom de Desconto ---")
@@ -363,9 +454,14 @@ def consultar_pedidos_com_desconto():
         print("Nenhum pedido com cupom de desconto encontrado!")
         return
     
+    total_economia = 0
     for pedido in pedidos_com_desconto:
         economia = pedido.valor_original - pedido.valor_total
-        print(f"Pedido #{pedido.numero} | Cupom: {pedido.cupom_desconto} | Valor: R$ {pedido.valor_total:.2f} | Economia: R$ {economia:.2f}")
+        total_economia += economia
+        status_icon = "✅" if pedido.status == "ENTREGUE" else "❌" if pedido.status == "CANCELADO" else "⏳"
+        print(f"{status_icon} Pedido #{pedido.numero} | Cupom: {pedido.cupom_desconto} | Valor: R$ {pedido.valor_total:.2f} | Economia: R$ {economia:.2f}")
+    
+    print(f"\n💰 Total de economia com cupons: R$ {total_economia:.2f}")
 
 def menu_itens():
     while True:
@@ -400,9 +496,10 @@ def menu_pedidos():
         print("3. Visualizar Filas")
         print("4. Processar Pedidos Pendentes")
         print("5. Marcar Pedido como Pronto")
-        print("6. Atualizar Status do Pedido")
-        print("7. Filtrar Pedidos por Status")
-        print("8. Consultar Pedidos com Desconto")  
+        print("6. Cancelar Pedido")  # NOVO: Opção de cancelamento
+        print("7. Atualizar Status do Pedido")
+        print("8. Filtrar Pedidos por Status")
+        print("9. Consultar Pedidos com Desconto")
         print("0. Voltar")
         
         try:
@@ -421,10 +518,12 @@ def menu_pedidos():
             elif opcao == 5:
                 marcar_pedido_pronto()
             elif opcao == 6:
-                atualizar_status_pedido()
+                cancelar_pedido()
             elif opcao == 7:
-                filtrar_pedidos_por_status()
+                atualizar_status_pedido()
             elif opcao == 8:
+                filtrar_pedidos_por_status()
+            elif opcao == 9:
                 consultar_pedidos_com_desconto()
             else:
                 print("Opção inválida!")
@@ -435,9 +534,8 @@ def menu_pedidos():
 def menu_principal():
     while True:
         print("\n" + "="*50)
-        print("SISTEMA DE PEDIDOS - FOODDELIVERY v6.0")
-        print("=== SISTEMA DE CUPONS DE DESCONTO ===")
-        print("Cupons disponíveis: OFF5 (5%), OFF10 (10%), OFF15 (15%)")
+        print("SISTEMA DE PEDIDOS - FOODDELIVERY v7.0")
+        print("=== SISTEMA DE CANCELAMENTO ===")
         print("="*50)
         print("1. Gerenciar Itens")
         print("2. Gerenciar Pedidos")
@@ -460,6 +558,6 @@ def menu_principal():
             print("Por favor, digite um número válido!")
 
 if __name__ == "__main__":
-    print("Iniciando Sistema de Pedidos v6.0...")
-    print("🎫 Sistema de Cupons de Desconto Ativado!")
+    print("Iniciando Sistema de Pedidos v7.0...")
+    print("🚨 Sistema de Cancelamento Ativado!")
     menu_principal()
