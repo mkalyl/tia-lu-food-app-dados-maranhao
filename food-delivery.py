@@ -1,4 +1,4 @@
-# Sistema de Pedidos para Restaurante - FoodDelivery Final 
+# Sistema de Pedidos para Restaurante - FoodDelivery Final
 # Desenvolvido por Maranhão - UNEX
 
 itens = []          
@@ -304,7 +304,7 @@ def menu_principal():
     while True:
         print("\n" + "="*60)
         print("🏪 SISTEMA DE PEDIDOS - FOODDELIVERY v8.0")
-        print("🎨Desenvolvido por Maranhão - UNEX")
+        print("🎨 Desenvolvido por Maranhão - UNEX")
         print("="*60)
         print("1. 📋 Gerenciar Menu de Itens")
         print("2. 🛒 Gerenciar Menu de Pedidos")
